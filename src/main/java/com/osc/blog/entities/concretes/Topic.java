@@ -1,10 +1,12 @@
 package com.osc.blog.entities.concretes;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -20,5 +22,9 @@ public class Topic {
 
     @Column(name = "name")
     private String name;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "topic", fetch = FetchType.EAGER)
+    private List<Article> articles;
 
 }

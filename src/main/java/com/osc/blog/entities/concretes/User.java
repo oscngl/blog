@@ -1,10 +1,12 @@
 package com.osc.blog.entities.concretes;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -35,5 +37,9 @@ public class User {
 
     @Column(name = "confirmed")
     private boolean confirmed = false;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    private List<Article> articles;
 
 }

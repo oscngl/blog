@@ -19,12 +19,6 @@ public class Article {
     @Column(name = "id")
     private int id;
 
-    @Column(name = "user_id")
-    private int userId;
-
-    @Column(name = "topic_id")
-    private int topicId;
-
     @Column(name = "title")
     private String title;
 
@@ -39,5 +33,13 @@ public class Article {
 
     @Column(name = "created_date")
     private LocalDate createdDate = LocalDate.now();
+
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = User.class)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Topic.class)
+    @JoinColumn(name = "topic_id")
+    private Topic topic;
 
 }
