@@ -135,4 +135,24 @@ class UserDaoTest {
 
     }
 
+    @Test
+    void itShould_SetPhotoUrl() {
+
+        User user = new User();
+        user.setFirstName("firstName");
+        user.setLastName("lastName");
+        user.setEmail("email@email.com");
+        user.setPassword("password");
+        testDao.save(user);
+
+        String url = "url";
+
+        testDao.setPhotoUrl(testDao.findAll().get(0).getId(), url);
+
+        User expected = testDao.findAll().get(0);
+
+        assertThat(expected.getPhotoUrl()).isEqualTo(url);
+
+    }
+
 }
