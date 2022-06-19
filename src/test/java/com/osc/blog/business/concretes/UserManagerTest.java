@@ -2,8 +2,11 @@ package com.osc.blog.business.concretes;
 
 import com.osc.blog.business.abstracts.ConfirmationTokenService;
 import com.osc.blog.core.adapters.abstracts.EmailSenderService;
+import com.osc.blog.core.adapters.abstracts.ImageUploadService;
 import com.osc.blog.core.utilities.results.DataResult;
+import com.osc.blog.core.utilities.results.ErrorDataResult;
 import com.osc.blog.core.utilities.results.Result;
+import com.osc.blog.core.utilities.results.SuccessDataResult;
 import com.osc.blog.dal.abstracts.UserDao;
 import com.osc.blog.entities.concretes.User;
 import com.osc.blog.entities.dtos.UserDto;
@@ -15,6 +18,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -36,6 +41,9 @@ class UserManagerTest {
     @Mock
     private ConfirmationTokenService confirmationTokenService;
 
+    @Mock
+    private ImageUploadService imageUploadService;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -43,7 +51,8 @@ class UserManagerTest {
                 userDao,
                 new ModelMapper(),
                 emailSenderService,
-                confirmationTokenService
+                confirmationTokenService,
+                imageUploadService
         );
     }
 
@@ -194,13 +203,15 @@ class UserManagerTest {
     @Test
     void itShould_SetPhotoUrl_WhenUserWithIdExists() {
 
+        MultipartFile image = new MockMultipartFile("photo", new byte[]{1});
         int id = 1;
         User user = new User();
         user.setId(id);
 
         given(userDao.findById(id)).willReturn(Optional.of(user));
+        given(imageUploadService.uploadUserPhoto(image)).willReturn(new SuccessDataResult<>("url", null));
 
-        Result expected = testManager.setPhotoUrl(id, "photoUrl");
+        Result expected = testManager.setPhotoUrl(id, image);
 
         assertThat(expected.isSuccess()).isTrue();
 
@@ -209,11 +220,44 @@ class UserManagerTest {
     @Test
     void itShouldNot_SetPhotoUrl_WhenUserWithIdDoesNotExists() {
 
+        MultipartFile image = new MockMultipartFile("photo", new byte[]{1});
         int id = 1;
 
         given(userDao.findById(id)).willReturn(Optional.empty());
 
-        Result expected = testManager.setPhotoUrl(id, "photoUrl");
+        Result expected = testManager.setPhotoUrl(id, image);
+
+        assertThat(expected.isSuccess()).isFalse();
+
+    }
+
+    @Test
+    void itShouldNot_SetPhotoUrl_WhenPhotoDoesNotExists() {
+
+        int id = 1;
+        User user = new User();
+        user.setId(id);
+
+        given(userDao.findById(id)).willReturn(Optional.of(user));
+
+        Result expected = testManager.setPhotoUrl(id, null);
+
+        assertThat(expected.isSuccess()).isFalse();
+
+    }
+
+    @Test
+    void itShouldNot_SetPhotoUrl_WhenPhotoCanNotUpload() {
+
+        MultipartFile image = new MockMultipartFile("photo", new byte[]{1});
+        int id = 1;
+        User user = new User();
+        user.setId(id);
+
+        given(userDao.findById(id)).willReturn(Optional.of(user));
+        given(imageUploadService.uploadUserPhoto(image)).willReturn(new ErrorDataResult<>());
+
+        Result expected = testManager.setPhotoUrl(id, image);
 
         assertThat(expected.isSuccess()).isFalse();
 
