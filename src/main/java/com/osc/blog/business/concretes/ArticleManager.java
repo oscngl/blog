@@ -1,12 +1,12 @@
 package com.osc.blog.business.concretes;
 
 import com.osc.blog.business.abstracts.ArticleService;
+import com.osc.blog.core.adapters.abstracts.ImageUploadService;
 import com.osc.blog.core.utilities.results.*;
 import com.osc.blog.dal.abstracts.ArticleDao;
 import com.osc.blog.entities.concretes.Article;
 import com.osc.blog.entities.dtos.ArticleDto;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,11 +16,22 @@ import java.util.List;
 public class ArticleManager implements ArticleService {
 
     private final ArticleDao articleDao;
-    private final ModelMapper modelMapper;
+    private final ImageUploadService imageUploadService;
 
     @Override
     public Result save(ArticleDto articleDto) {
-        Article article = modelMapper.map(articleDto, Article.class);
+        Article article = new Article();
+        article.setTitle(articleDto.getTitle());
+        article.setText(articleDto.getText());
+        article.setUser(articleDto.getUser());
+        article.setTopic(articleDto.getTopic());
+        if(articleDto.getPhoto() != null) {
+            DataResult<String> uploaded = imageUploadService.uploadArticlePhoto(articleDto.getPhoto());
+            if (!uploaded.isSuccess()) {
+                return new ErrorResult("Failed to upload!");
+            }
+            article.setPhotoUrl(uploaded.getData());
+        }
         articleDao.save(article);
         return new SuccessResult("Article saved.");
     }
