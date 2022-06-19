@@ -19,4 +19,8 @@ public interface UserDao extends JpaRepository<User, Integer> {
     @Query("UPDATE User u SET u.confirmed = true WHERE u.id = :userId")
     void setConfirmedTrue(@Param(value = "userId") int userId);
 
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE User u SET u.photoUrl = :photoUrl WHERE u.id = :userId")
+    void setPhotoUrl(@Param(value = "userId") int userId, @Param(value = "photoUrl") String photoUrl);
+
 }
