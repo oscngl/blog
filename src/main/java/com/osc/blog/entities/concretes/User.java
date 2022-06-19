@@ -42,4 +42,8 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private List<Article> articles;
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "user")
+    private List<ConfirmationToken> tokens;
+
 }
