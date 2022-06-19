@@ -1,7 +1,10 @@
 package com.osc.blog.business.concretes;
 
+import com.osc.blog.core.adapters.abstracts.ImageUploadService;
 import com.osc.blog.core.utilities.results.DataResult;
+import com.osc.blog.core.utilities.results.ErrorDataResult;
 import com.osc.blog.core.utilities.results.Result;
+import com.osc.blog.core.utilities.results.SuccessDataResult;
 import com.osc.blog.dal.abstracts.ArticleDao;
 import com.osc.blog.entities.concretes.Article;
 import com.osc.blog.entities.concretes.Topic;
@@ -14,7 +17,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.modelmapper.ModelMapper;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -30,18 +34,22 @@ class ArticleManagerTest {
     @Mock
     private ArticleDao articleDao;
 
+    @Mock
+    private ImageUploadService imageUploadService;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         testManager = new ArticleManager(
                 articleDao,
-                new ModelMapper()
+                imageUploadService
         );
     }
 
     @Test
-    void itShould_Save() {
+    void itShould_SaveWhenPhotoCanUpload() {
 
+        MultipartFile image = new MockMultipartFile("photo", new byte[]{1});
         String title = "title";
         String text = "text";
         ArticleDto articleDto = new ArticleDto();
@@ -49,6 +57,9 @@ class ArticleManagerTest {
         articleDto.setText(text);
         articleDto.setUser(new User());
         articleDto.setTopic(new Topic());
+        articleDto.setPhoto(image);
+
+        given(imageUploadService.uploadArticlePhoto(image)).willReturn(new SuccessDataResult<>("url", null));
 
         Result expected = testManager.save(articleDto);
 
@@ -59,6 +70,27 @@ class ArticleManagerTest {
         assertThat(expected.isSuccess()).isTrue();
         assertThat(capturedArticle.getTitle()).isEqualTo(articleDto.getTitle());
         assertThat(capturedArticle.getText()).isEqualTo(articleDto.getText());
+
+    }
+
+    @Test
+    void itShouldNot_Save_WhenPhotoCanNotUpload() {
+
+        MultipartFile image = new MockMultipartFile("photo", new byte[]{1});
+        String title = "title";
+        String text = "text";
+        ArticleDto articleDto = new ArticleDto();
+        articleDto.setTitle(title);
+        articleDto.setText(text);
+        articleDto.setUser(new User());
+        articleDto.setTopic(new Topic());
+        articleDto.setPhoto(image);
+
+        given(imageUploadService.uploadArticlePhoto(image)).willReturn(new ErrorDataResult<>());
+
+        Result expected = testManager.save(articleDto);
+
+        assertThat(expected.isSuccess()).isFalse();
 
     }
 
