@@ -1,5 +1,7 @@
 package com.osc.blog.business.concretes;
 
+import com.osc.blog.business.abstracts.ConfirmationTokenService;
+import com.osc.blog.core.adapters.abstracts.EmailSenderService;
 import com.osc.blog.core.utilities.results.DataResult;
 import com.osc.blog.core.utilities.results.Result;
 import com.osc.blog.dal.abstracts.UserDao;
@@ -28,19 +30,27 @@ class UserManagerTest {
     @Mock
     private UserDao userDao;
 
+    @Mock
+    private EmailSenderService emailSenderService;
+
+    @Mock
+    private ConfirmationTokenService confirmationTokenService;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         testManager = new UserManager(
                 userDao,
-                new ModelMapper()
+                new ModelMapper(),
+                emailSenderService,
+                confirmationTokenService
         );
     }
 
     @Test
     void itShould_Save_WhenUserWithEmailDoesNotExists() {
 
-        String firstName = "firstname";
+        String firstName = "firstName";
         String lastName = "lastName";
         String email = "email@email.com";
         UserDto userDto = new UserDto();
