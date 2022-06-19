@@ -3,6 +3,7 @@ package com.osc.blog.business.concretes;
 import com.osc.blog.business.abstracts.ConfirmationTokenService;
 import com.osc.blog.business.abstracts.UserService;
 import com.osc.blog.core.adapters.abstracts.EmailSenderService;
+import com.osc.blog.core.adapters.abstracts.ImageUploadService;
 import com.osc.blog.core.utilities.results.*;
 import com.osc.blog.dal.abstracts.UserDao;
 import com.osc.blog.entities.concretes.ConfirmationToken;
@@ -11,6 +12,7 @@ import com.osc.blog.entities.dtos.UserDto;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -22,6 +24,7 @@ public class UserManager implements UserService {
     private final ModelMapper modelMapper;
     private final EmailSenderService emailSenderService;
     private final ConfirmationTokenService confirmationTokenService;
+    private final ImageUploadService imageUploadService;
 
     @Override
     public Result save(UserDto userDto) {
@@ -71,12 +74,19 @@ public class UserManager implements UserService {
     }
 
     @Override
-    public Result setPhotoUrl(int id, String photoUrl) {
+    public Result setPhotoUrl(int id, MultipartFile photo) {
         User exists = userDao.findById(id).orElse(null);
         if(exists == null) {
             return new ErrorResult("User not found!");
         }
-        userDao.setPhotoUrl(id, photoUrl);
+        if(photo == null) {
+            return new ErrorResult("Photo not found!");
+        }
+        DataResult<String> uploaded = imageUploadService.uploadUserPhoto(photo);
+        if (uploaded.getData() == null) {
+            return new ErrorResult("Failed to upload!");
+        }
+        userDao.setPhotoUrl(id, uploaded.getData());
         return new SuccessResult("Photo Url uploaded.");
     }
 
