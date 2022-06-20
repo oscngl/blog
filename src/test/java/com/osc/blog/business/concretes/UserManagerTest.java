@@ -1,13 +1,12 @@
 package com.osc.blog.business.concretes;
 
-import com.osc.blog.business.abstracts.ConfirmationTokenService;
-import com.osc.blog.core.adapters.abstracts.EmailSenderService;
 import com.osc.blog.core.adapters.abstracts.ImageUploadService;
 import com.osc.blog.core.utilities.results.DataResult;
 import com.osc.blog.core.utilities.results.ErrorDataResult;
 import com.osc.blog.core.utilities.results.Result;
 import com.osc.blog.core.utilities.results.SuccessDataResult;
 import com.osc.blog.dal.abstracts.UserDao;
+import com.osc.blog.entities.concretes.Role;
 import com.osc.blog.entities.concretes.User;
 import com.osc.blog.entities.dtos.UserDto;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,12 +35,6 @@ class UserManagerTest {
     private UserDao userDao;
 
     @Mock
-    private EmailSenderService emailSenderService;
-
-    @Mock
-    private ConfirmationTokenService confirmationTokenService;
-
-    @Mock
     private ImageUploadService imageUploadService;
 
     @BeforeEach
@@ -50,8 +43,6 @@ class UserManagerTest {
         testManager = new UserManager(
                 userDao,
                 new ModelMapper(),
-                emailSenderService,
-                confirmationTokenService,
                 imageUploadService
         );
     }
@@ -70,7 +61,7 @@ class UserManagerTest {
 
         given(userDao.findByConfirmedIsTrueAndEmail(userDto.getEmail())).willReturn(null);
 
-        Result expected = testManager.save(userDto);
+        Result expected = testManager.save(userDto, new Role());
 
         ArgumentCaptor<User> userArgumentCaptor = ArgumentCaptor.forClass(User.class);
         verify(userDao).save(userArgumentCaptor.capture());
@@ -92,7 +83,7 @@ class UserManagerTest {
 
         given(userDao.findByConfirmedIsTrueAndEmail(email)).willReturn(new User());
 
-        Result expected = testManager.save(userDto);
+        Result expected = testManager.save(userDto, new Role());
 
         assertThat(expected.isSuccess()).isFalse();
 
