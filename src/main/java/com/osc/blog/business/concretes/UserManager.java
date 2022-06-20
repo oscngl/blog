@@ -1,12 +1,10 @@
 package com.osc.blog.business.concretes;
 
-import com.osc.blog.business.abstracts.ConfirmationTokenService;
 import com.osc.blog.business.abstracts.UserService;
-import com.osc.blog.core.adapters.abstracts.EmailSenderService;
 import com.osc.blog.core.adapters.abstracts.ImageUploadService;
 import com.osc.blog.core.utilities.results.*;
 import com.osc.blog.dal.abstracts.UserDao;
-import com.osc.blog.entities.concretes.ConfirmationToken;
+import com.osc.blog.entities.concretes.Role;
 import com.osc.blog.entities.concretes.User;
 import com.osc.blog.entities.dtos.UserDto;
 import lombok.RequiredArgsConstructor;
@@ -22,22 +20,18 @@ public class UserManager implements UserService {
 
     private final UserDao userDao;
     private final ModelMapper modelMapper;
-    private final EmailSenderService emailSenderService;
-    private final ConfirmationTokenService confirmationTokenService;
     private final ImageUploadService imageUploadService;
 
     @Override
-    public Result save(UserDto userDto) {
+    public DataResult<User> save(UserDto userDto, Role role) {
         User exists = userDao.findByConfirmedIsTrueAndEmail(userDto.getEmail());
         if(exists != null) {
-            return new ErrorResult("Email already taken!");
+            return new ErrorDataResult<>(null, "Email already taken!");
         }
         User user = modelMapper.map(userDto, User.class);
+        user.getRoles().add(role);
         userDao.save(user);
-        ConfirmationToken confirmationToken = new ConfirmationToken(user);
-        confirmationTokenService.save(confirmationToken);
-        emailSenderService.sendConfirmationEmail(user.getEmail(), user.getFirstName(), confirmationToken.getToken());
-        return new SuccessResult("User saved.");
+        return new SuccessDataResult<>(user, "User saved.");
     }
 
     @Override

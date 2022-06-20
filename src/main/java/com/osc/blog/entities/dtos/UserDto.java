@@ -30,4 +30,8 @@ public class UserDto {
     @Pattern(regexp = "^[0-9a-zA-Z]*$", message = "Password is not valid!")
     private String password;
 
+    @NotEmpty(message = "Role is required!")
+    @NotBlank(message = "Role is required!")
+    private String roleName;
+
 }
