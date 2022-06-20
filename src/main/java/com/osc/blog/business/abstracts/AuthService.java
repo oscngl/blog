@@ -6,5 +6,6 @@ import com.osc.blog.entities.dtos.UserDto;
 public interface AuthService {
 
     Result register(UserDto userDto);
+    Result confirmUser(String token);
 
 }

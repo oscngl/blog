@@ -16,6 +16,8 @@ import com.osc.blog.entities.dtos.UserDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class AuthManager implements AuthService {
@@ -43,6 +45,30 @@ public class AuthManager implements AuthService {
                 confirmationToken.getToken()
         );
         return new SuccessResult("User registered.");
+    }
+
+    @Override
+    public Result confirmUser(String token) {
+        DataResult<ConfirmationToken> confirmationToken = confirmationTokenService.getByToken(token);
+        if(confirmationToken == null || !confirmationToken.isSuccess()) {
+            return new ErrorResult("Token not found!");
+        }
+        DataResult<User> user = userService.getByEmail(confirmationToken.getData().getUser().getEmail());
+        if(user == null || !user.isSuccess()) {
+            return new ErrorResult("Failed to confirm user!");
+        }
+        if(confirmationToken.getData().getUser().isConfirmed()) {
+            return new ErrorResult("User already confirmed!");
+        }
+        if(confirmationToken.getData().getConfirmedDate() != null) {
+            return new ErrorResult("Token already confirmed!");
+        }
+        if(confirmationToken.getData().getExpiresDate().isBefore(LocalDateTime.now())) {
+            return new ErrorResult("Token expired!");
+        }
+        confirmationTokenService.confirmToken(token);
+        userService.setConfirmedTrue(confirmationToken.getData().getUser().getId());
+        return new SuccessResult("User confirmed!");
     }
 
 }
