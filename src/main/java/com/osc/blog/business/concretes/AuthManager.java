@@ -15,6 +15,7 @@ import com.osc.blog.entities.concretes.User;
 import com.osc.blog.entities.dtos.UserDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -48,14 +49,11 @@ public class AuthManager implements AuthService {
     }
 
     @Override
+    @Transactional
     public Result confirmUser(String token) {
         DataResult<ConfirmationToken> confirmationToken = confirmationTokenService.getByToken(token);
         if(confirmationToken == null || !confirmationToken.isSuccess()) {
             return new ErrorResult("Token not found!");
-        }
-        DataResult<User> user = userService.getByEmail(confirmationToken.getData().getUser().getEmail());
-        if(user == null || !user.isSuccess()) {
-            return new ErrorResult("Failed to confirm user!");
         }
         if(confirmationToken.getData().getUser().isConfirmed()) {
             return new ErrorResult("User already confirmed!");
