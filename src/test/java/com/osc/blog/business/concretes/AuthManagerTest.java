@@ -124,7 +124,6 @@ class AuthManagerTest {
         confirmationToken.setUser(user);
 
         given(confirmationTokenService.getByToken(token)).willReturn(new SuccessDataResult<>(confirmationToken));
-        given(userService.getByEmail(email)).willReturn(new SuccessDataResult<>(user));
 
         Result expected = testManager.confirmUser(token);
 
@@ -138,28 +137,6 @@ class AuthManagerTest {
         String token = "token";
 
         given(confirmationTokenService.getByToken(token)).willReturn(new ErrorDataResult<>(null));
-
-        Result expected = testManager.confirmUser(token);
-
-        assertThat(expected.isSuccess()).isFalse();
-
-    }
-
-    @Test
-    void itShouldNot_ConfirmUser_WhenUserDoesNotExists() {
-
-        String token = "token";
-        String email = "email@email.com";
-
-        User user = new User();
-        user.setEmail(email);
-
-        ConfirmationToken confirmationToken = new ConfirmationToken();
-        confirmationToken.setToken(token);
-        confirmationToken.setUser(user);
-
-        given(confirmationTokenService.getByToken(token)).willReturn(new SuccessDataResult<>(confirmationToken));
-        given(userService.getByEmail(email)).willReturn(new ErrorDataResult<>(null));
 
         Result expected = testManager.confirmUser(token);
 
@@ -182,7 +159,6 @@ class AuthManagerTest {
         confirmationToken.setUser(user);
 
         given(confirmationTokenService.getByToken(token)).willReturn(new SuccessDataResult<>(confirmationToken));
-        given(userService.getByEmail(email)).willReturn(new SuccessDataResult<>(user));
 
         Result expected = testManager.confirmUser(token);
 
@@ -205,7 +181,6 @@ class AuthManagerTest {
         confirmationToken.setConfirmedDate(LocalDateTime.now());
 
         given(confirmationTokenService.getByToken(token)).willReturn(new SuccessDataResult<>(confirmationToken));
-        given(userService.getByEmail(email)).willReturn(new SuccessDataResult<>(user));
 
         Result expected = testManager.confirmUser(token);
 
@@ -228,7 +203,6 @@ class AuthManagerTest {
         confirmationToken.setExpiresDate(LocalDateTime.now().minusMinutes(1));
 
         given(confirmationTokenService.getByToken(token)).willReturn(new SuccessDataResult<>(confirmationToken));
-        given(userService.getByEmail(email)).willReturn(new SuccessDataResult<>(user));
 
         Result expected = testManager.confirmUser(token);
 
