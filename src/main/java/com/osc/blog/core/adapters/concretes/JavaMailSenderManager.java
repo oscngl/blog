@@ -34,7 +34,7 @@ public class JavaMailSenderManager implements EmailSenderService {
 
     @Override
     public void sendConfirmationEmail(String to, String name, String token) {
-        String confirmationLink = "/" + token;
+        String confirmationLink = "http://localhost:8080/api/v1/auth/confirmUser?token=" + token;
         String subject = "Confirm Your Email";
         send(to, buildConfirmationEmail(name, confirmationLink), subject);
     }
