@@ -21,7 +21,7 @@ public class AuthController {
         return authService.register(userDto);
     }
 
-    @PostMapping("/confirmUser")
+    @GetMapping("/confirmUser")
     public Result confirmUser(@RequestParam("token") String token) {
         return authService.confirmUser(token);
     }
