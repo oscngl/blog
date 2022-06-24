@@ -1,9 +1,9 @@
 package com.osc.blog.api.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.osc.blog.dal.abstracts.TopicDao;
-import com.osc.blog.entities.concretes.Role;
 import com.osc.blog.entities.concretes.Topic;
 import com.osc.blog.entities.dtos.TopicDto;
 import org.junit.jupiter.api.AfterEach;
@@ -32,6 +32,12 @@ class TopicsControllerIT {
     @Autowired
     private TopicDao topicDao;
 
+    private final String token = "Bearer "
+            + JWT
+            .create()
+            .withArrayClaim("roles", new String[]{"ROLE_ADMIN"})
+            .withIssuer("auth0").sign(Algorithm.HMAC256("secret"));
+
     @AfterEach
     void tearDown() {
         topicDao.deleteAll();
@@ -45,7 +51,8 @@ class TopicsControllerIT {
 
         mockMvc.perform(post("/api/v1/topics/save")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(topicDto)))
+                        .content(objectMapper.writeValueAsString(topicDto))
+                        .header("Authorization", token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true));
 
@@ -55,7 +62,8 @@ class TopicsControllerIT {
     void itShouldNot_Save_WhenRequestIsNotValid_IsBadRequest() throws Exception {
 
         mockMvc.perform(post("/api/v1/topics/save")
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", token))
                 .andExpect(status().isBadRequest());
 
     }

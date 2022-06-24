@@ -1,5 +1,7 @@
 package com.osc.blog.api.controllers;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.osc.blog.dal.abstracts.UserDao;
 import com.osc.blog.entities.concretes.User;
@@ -31,6 +33,12 @@ class UsersControllerIT {
 
     @Autowired
     private UserDao userDao;
+
+    private final String token = "Bearer "
+            + JWT
+            .create()
+            .withArrayClaim("roles", new String[]{"ROLE_USER"})
+            .withIssuer("auth0").sign(Algorithm.HMAC256("secret"));
 
     @AfterEach
     void tearDown() {
@@ -125,7 +133,8 @@ class UsersControllerIT {
         mockMvc.perform(MockMvcRequestBuilders
                         .multipart("/api/v1/users/setPhotoUrl")
                         .file(sampleImage)
-                        .param("id", objectMapper.writeValueAsString(1)))
+                        .param("id", objectMapper.writeValueAsString(1))
+                        .header("Authorization", token))
                 .andExpect(status().isOk());
 
     }
@@ -134,7 +143,8 @@ class UsersControllerIT {
     void itShould_SetPhotoUrl_WhenIdDoesNotExistsAndPhotoExists_IsBadRequest() throws Exception {
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .multipart("/api/v1/users/setPhotoUrl"))
+                        .multipart("/api/v1/users/setPhotoUrl")
+                        .header("Authorization", token))
                 .andExpect(status().isBadRequest());
 
     }
@@ -144,7 +154,8 @@ class UsersControllerIT {
 
         mockMvc.perform(MockMvcRequestBuilders
                         .multipart("/api/v1/users/setPhotoUrl")
-                        .param("id", objectMapper.writeValueAsString(1)))
+                        .param("id", objectMapper.writeValueAsString(1))
+                        .header("Authorization", token))
                 .andExpect(status().isBadRequest());
 
     }

@@ -1,5 +1,7 @@
 package com.osc.blog.api.controllers;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.osc.blog.dal.abstracts.ArticleDao;
 import com.osc.blog.dal.abstracts.TopicDao;
@@ -40,6 +42,12 @@ class ArticlesControllerIT {
     @Autowired
     private TopicDao topicDao;
 
+    private final String token = "Bearer "
+            + JWT
+            .create()
+            .withArrayClaim("roles", new String[]{"ROLE_USER"})
+            .withIssuer("auth0").sign(Algorithm.HMAC256("secret"));
+
     @AfterEach
     void tearDown() {
         articleDao.deleteAll();
@@ -70,7 +78,8 @@ class ArticlesControllerIT {
 
         mockMvc.perform(post("/api/v1/articles/save")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(articleDto)))
+                        .content(objectMapper.writeValueAsString(articleDto))
+                        .header("Authorization", token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true));
 
@@ -80,7 +89,8 @@ class ArticlesControllerIT {
     void itShouldNot_Save_WhenRequestIsNotValid_IsBadRequest() throws Exception {
 
         mockMvc.perform(post("/api/v1/articles/save")
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", token))
                 .andExpect(status().isBadRequest());
 
     }
@@ -204,7 +214,8 @@ class ArticlesControllerIT {
 
         mockMvc.perform(put("/api/v1/articles/setEnabledFalse")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .param("id", String.valueOf(id)))
+                        .param("id", String.valueOf(id))
+                        .header("Authorization", token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true));
 
@@ -215,7 +226,8 @@ class ArticlesControllerIT {
 
         mockMvc.perform(put("/api/v1/articles/setEnabledFalse")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .param("id", String.valueOf(1)))
+                        .param("id", String.valueOf(1))
+                        .header("Authorization", token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(false));
 
