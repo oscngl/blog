@@ -17,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
 
@@ -47,6 +48,7 @@ class AuthManagerTest {
                 userService,
                 roleService,
                 emailSenderService,
+                new BCryptPasswordEncoder(),
                 confirmationTokenService
         );
     }
