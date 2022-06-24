@@ -17,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -103,7 +104,7 @@ class AuthControllerIT {
 
         String token = confirmationToken.getToken();
 
-        mockMvc.perform(post("/api/v1/auth/confirmUser")
+        mockMvc.perform(get("/api/v1/auth/confirmUser")
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("token", token))
                 .andExpect(status().isOk())
@@ -114,7 +115,7 @@ class AuthControllerIT {
     @Test
     void itShould_ConfirmUser_WhenRequestIsNotValid_IsBadRequest() throws Exception {
 
-        mockMvc.perform(post("/api/v1/auth/confirmUser")
+        mockMvc.perform(get("/api/v1/auth/confirmUser")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
 
