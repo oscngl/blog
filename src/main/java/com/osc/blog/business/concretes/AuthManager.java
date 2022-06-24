@@ -31,12 +31,12 @@ public class AuthManager implements AuthService {
     @Override
     public Result register(UserDto userDto) {
         DataResult<Role> role = roleService.getByName(userDto.getRoleName());
-        if(role == null || !role.isSuccess()) {
-            return new ErrorResult("Something went wrong!");
+        if(!role.isSuccess()) {
+            return new ErrorResult(role.getMessage());
         }
         DataResult<User> user = userService.save(userDto, role.getData());
-        if(user == null || !user.isSuccess()) {
-            return new ErrorResult("Something went wrong!");
+        if(!user.isSuccess()) {
+            return new ErrorResult(user.getMessage());
         }
         ConfirmationToken confirmationToken = new ConfirmationToken(user.getData());
         confirmationTokenService.save(confirmationToken);
@@ -52,8 +52,8 @@ public class AuthManager implements AuthService {
     @Transactional
     public Result confirmUser(String token) {
         DataResult<ConfirmationToken> confirmationToken = confirmationTokenService.getByToken(token);
-        if(confirmationToken == null || !confirmationToken.isSuccess()) {
-            return new ErrorResult("Token not found!");
+        if(!confirmationToken.isSuccess()) {
+            return new ErrorResult(confirmationToken.getMessage());
         }
         if(confirmationToken.getData().getUser().isConfirmed()) {
             return new ErrorResult("User already confirmed!");
