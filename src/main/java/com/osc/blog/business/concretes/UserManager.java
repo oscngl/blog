@@ -9,9 +9,14 @@ import com.osc.blog.entities.concretes.User;
 import com.osc.blog.entities.dtos.UserDto;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -82,6 +87,17 @@ public class UserManager implements UserService {
         }
         userDao.setPhotoUrl(id, uploaded.getData());
         return new SuccessResult("Photo Url uploaded.");
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userDao.findByConfirmedIsTrueAndEmail(email);
+        if(user == null) {
+            throw new UsernameNotFoundException("User not found in the database!");
+        }
+        Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        user.getRoles().forEach(role -> authorities.add(new SimpleGrantedAuthority(role.getName())));
+        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), authorities);
     }
 
 }

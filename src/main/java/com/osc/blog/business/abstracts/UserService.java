@@ -5,11 +5,12 @@ import com.osc.blog.core.utilities.results.Result;
 import com.osc.blog.entities.concretes.Role;
 import com.osc.blog.entities.concretes.User;
 import com.osc.blog.entities.dtos.UserDto;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-public interface UserService {
+public interface UserService extends UserDetailsService {
 
     DataResult<User> save(UserDto userDto, Role role);
     DataResult<User> getById(int id);
