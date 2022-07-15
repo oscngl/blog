@@ -7,7 +7,9 @@ import com.osc.blog.dal.abstracts.ArticleDao;
 import com.osc.blog.entities.concretes.Article;
 import com.osc.blog.entities.dtos.ArticleDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -37,6 +39,16 @@ public class ArticleManager implements ArticleService {
     }
 
     @Override
+    public Result update(Article article) {
+        Article exists = articleDao.findById(article.getId()).orElse(null);
+        if(exists == null) {
+            return new ErrorResult("Article not found!");
+        }
+        articleDao.saveAndFlush(article);
+        return new SuccessResult("Article updated.");
+    }
+
+    @Override
     public DataResult<Article> getById(int id) {
         Article article = articleDao.findById(id).orElse(null);
         if(article == null) {
@@ -46,21 +58,57 @@ public class ArticleManager implements ArticleService {
     }
 
     @Override
-    public DataResult<List<Article>> getAll() {
-        return new SuccessDataResult<>(articleDao.findAllByEnabledIsTrue());
+    public DataResult<List<Article>> getAll(int pageNumber, int pageSize) {
+        return new SuccessDataResult<>(articleDao.findAllByEnabledIsTrueOrderByCreatedDateDesc(PageRequest.of(pageNumber,pageSize)));
     }
 
     @Override
-    public DataResult<List<Article>> getAllByUserId(int userId) {
-        return new SuccessDataResult<>(articleDao.findAllByEnabledIsTrueAndUserId(userId));
+    public DataResult<List<Article>> getAllByUserId(int userId, int pageNumber, int pageSize) {
+        return new SuccessDataResult<>(articleDao.findAllByEnabledIsTrueAndUserIdOrderByCreatedDateDesc(userId, PageRequest.of(pageNumber,pageSize)));
     }
 
     @Override
-    public DataResult<List<Article>> getAllByTopicId(int topicId) {
-        return new SuccessDataResult<>(articleDao.findAllByEnabledIsTrueAndTopicId(topicId));
+    public DataResult<List<Article>> getAllByUsrname(String username, int pageNumber, int pageSize) {
+        return new SuccessDataResult<>(articleDao.findAllByEnabledIsTrueAndUser_UsrnameOrderByCreatedDateDesc(username, PageRequest.of(pageNumber,pageSize)));
     }
 
     @Override
+    public DataResult<List<Article>> getAllByTopicId(int topicId, int pageNumber, int pageSize) {
+        return new SuccessDataResult<>(articleDao.findAllByEnabledIsTrueAndTopicIdOrderByCreatedDateDesc(topicId, PageRequest.of(pageNumber,pageSize)));
+    }
+
+    @Override
+    public DataResult<List<Article>> getAllByKeywords(String keywords, int pageNumber, int pageSize) {
+        return new SuccessDataResult<>(articleDao.findAllByEnabledIsTrueAndTitleContainingIgnoreCaseOrderByCreatedDateDesc(keywords, PageRequest.of(pageNumber,pageSize)));
+    }
+
+    @Override
+    public DataResult<Integer> countAll() {
+        return new SuccessDataResult<>(articleDao.countAllByEnabledIsTrue());
+    }
+
+    @Override
+    public DataResult<Integer> countAllByUserId(int userId) {
+        return new SuccessDataResult<>(articleDao.countAllByEnabledIsTrueAndUserId(userId));
+    }
+
+    @Override
+    public DataResult<Integer> countAllByTopicId(int topicId) {
+        return new SuccessDataResult<>(articleDao.countAllByEnabledIsTrueAndTopicId(topicId));
+    }
+
+    @Override
+    public DataResult<Integer> countAllByUsername(String username) {
+        return new SuccessDataResult<>(articleDao.countAllByEnabledIsTrueAndUser_Usrname(username));
+    }
+
+    @Override
+    public DataResult<Integer> countAllByKeywords(String keywords) {
+        return new SuccessDataResult<>(articleDao.countAllByEnabledIsTrueAndKeywords(keywords));
+    }
+
+    @Override
+    @Transactional
     public Result setEnabledFalse(int id) {
         Article exists = articleDao.findById(id).orElse(null);
         if(exists == null) {
