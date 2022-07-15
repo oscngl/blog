@@ -18,6 +18,11 @@ public class UsersController {
 
     private final UserService userService;
 
+    @PutMapping("/update")
+    public Result update(@RequestBody User user) {
+        return userService.update(user);
+    }
+
     @GetMapping("/getById")
     public DataResult<User> getById(int id) {
         return userService.getById(id);
@@ -28,12 +33,17 @@ public class UsersController {
         return userService.getAll();
     }
 
+    @GetMapping("/getByUsername")
+    public DataResult<User> getByUsername(String username) {
+        return userService.getByUsername(username);
+    }
+
     @GetMapping("/getByEmail")
     public DataResult<User> getByEmail(String email) {
         return userService.getByEmail(email);
     }
 
-    @PostMapping("/setPhotoUrl")
+    @PutMapping("/setPhotoUrl")
     public Result setPhotoUrl(@RequestParam("id") int id, @RequestParam("photo") MultipartFile photo) {
         return userService.setPhotoUrl(id, photo);
     }

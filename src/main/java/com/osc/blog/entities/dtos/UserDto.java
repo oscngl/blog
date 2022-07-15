@@ -19,8 +19,14 @@ public class UserDto {
     @NotBlank(message = "Last Name is required!")
     private String lastName;
 
-    @NotEmpty(message = "Name is required!")
-    @NotBlank(message = "Name is required!")
+    @NotEmpty(message = "Username is required!")
+    @NotBlank(message = "Username is required!")
+    @Size(min = 3, max = 12, message = "Username must contain at least 3 and maximum 12 characters!")
+    @Pattern(regexp = "^[0-9a-zA-Z]*$", message = "Username is not valid!")
+    private String usrname;
+
+    @NotEmpty(message = "Email is required!")
+    @NotBlank(message = "Email is required!")
     @Email(message = "Email is not valid!")
     private String email;
 

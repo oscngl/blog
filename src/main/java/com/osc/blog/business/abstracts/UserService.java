@@ -13,8 +13,10 @@ import java.util.List;
 public interface UserService extends UserDetailsService {
 
     DataResult<User> save(UserDto userDto, Role role);
+    Result update(User user);
     DataResult<User> getById(int id);
     DataResult<List<User>> getAll();
+    DataResult<User> getByUsername(String username);
     DataResult<User> getByEmail(String email);
     Result setConfirmedTrue(int id);
     Result setPhotoUrl(int id, MultipartFile photo);

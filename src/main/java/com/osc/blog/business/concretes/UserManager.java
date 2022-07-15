@@ -13,6 +13,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
@@ -33,10 +34,24 @@ public class UserManager implements UserService {
         if(exists != null) {
             return new ErrorDataResult<>(null, "Email already taken!");
         }
+        exists = userDao.findByConfirmedIsTrueAndUsrname(userDto.getUsrname());
+        if(exists != null) {
+            return new ErrorDataResult<>(null, "Username already taken!");
+        }
         User user = modelMapper.map(userDto, User.class);
         user.getRoles().add(role);
         userDao.save(user);
         return new SuccessDataResult<>(user, "User saved.");
+    }
+
+    @Override
+    public Result update(User user) {
+        User exists = userDao.findById(user.getId()).orElse(null);
+        if(exists == null) {
+            return new ErrorResult("User not found!");
+        }
+        userDao.saveAndFlush(user);
+        return new SuccessResult("User updated.");
     }
 
     @Override
@@ -51,6 +66,15 @@ public class UserManager implements UserService {
     @Override
     public DataResult<List<User>> getAll() {
         return new SuccessDataResult<>(userDao.findAllByConfirmedIsTrue());
+    }
+
+    @Override
+    public DataResult<User> getByUsername(String username) {
+        User user = userDao.findByConfirmedIsTrueAndUsrname(username);
+        if(user == null) {
+            return new ErrorDataResult<>(null, "User not found!");
+        }
+        return new SuccessDataResult<>(user);
     }
 
     @Override
@@ -73,6 +97,7 @@ public class UserManager implements UserService {
     }
 
     @Override
+    @Transactional
     public Result setPhotoUrl(int id, MultipartFile photo) {
         User exists = userDao.findById(id).orElse(null);
         if(exists == null) {
