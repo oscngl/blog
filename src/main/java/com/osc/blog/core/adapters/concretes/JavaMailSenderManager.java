@@ -34,7 +34,7 @@ public class JavaMailSenderManager implements EmailSenderService {
 
     @Override
     public void sendConfirmationEmail(String to, String name, String token) {
-        String confirmationLink = "https://blog-osc.herokuapp.com/api/v1/auth/confirmUser?token=" + token;
+        String confirmationLink = "https://blog-osc.netlify.app/confirm/" + token;
         String subject = "Confirm Your Email";
         send(to, buildConfirmationEmail(name, confirmationLink), subject);
     }
