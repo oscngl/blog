@@ -9,6 +9,8 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
@@ -59,7 +61,7 @@ class ArticleDaoTest {
         article.setEnabled(true);
         testDao.save(article);
 
-        List<Article> expected = testDao.findAllByEnabledIsTrue();
+        List<Article> expected = testDao.findAllByEnabledIsTrueOrderByCreatedDateDesc(PageRequest.of(0, 1));
 
         assertThat(expected.isEmpty()).isFalse();
 
@@ -88,7 +90,7 @@ class ArticleDaoTest {
         article.setEnabled(false);
         testDao.save(article);
 
-        List<Article> expected = testDao.findAllByEnabledIsTrue();
+        List<Article> expected = testDao.findAllByEnabledIsTrueOrderByCreatedDateDesc(PageRequest.of(0, 1));
 
         assertThat(expected.isEmpty()).isTrue();
 
@@ -97,7 +99,7 @@ class ArticleDaoTest {
     @Test
     void itShouldNot_FindAllByEnabledIsTrue_WhenArticleDoesNotExists() {
 
-        List<Article> expected = testDao.findAllByEnabledIsTrue();
+        List<Article> expected = testDao.findAllByEnabledIsTrueOrderByCreatedDateDesc(PageRequest.of(0, 1));
 
         assertThat(expected.isEmpty()).isTrue();
 
@@ -127,7 +129,7 @@ class ArticleDaoTest {
         testDao.save(article);
 
         int userId = userDao.findAll().get(0).getId();
-        List<Article> expected = testDao.findAllByEnabledIsTrueAndUserId(userId);
+        List<Article> expected = testDao.findAllByEnabledIsTrueAndUserIdOrderByCreatedDateDesc(userId, PageRequest.of(0, 1));
 
         assertThat(expected.isEmpty()).isFalse();
 
@@ -157,7 +159,7 @@ class ArticleDaoTest {
         testDao.save(article);
 
         int userId = userDao.findAll().get(0).getId();
-        List<Article> expected = testDao.findAllByEnabledIsTrueAndUserId(userId);
+        List<Article> expected = testDao.findAllByEnabledIsTrueAndUserIdOrderByCreatedDateDesc(userId, PageRequest.of(0, 1));
 
         assertThat(expected.isEmpty()).isTrue();
 
@@ -166,7 +168,7 @@ class ArticleDaoTest {
     @Test
     void itShouldNot_FindAllByEnabledIsTrueAndUserId_WhenArticleWithUserIdDoesNotExists() {
 
-        List<Article> expected = testDao.findAllByEnabledIsTrueAndUserId(1);
+        List<Article> expected = testDao.findAllByEnabledIsTrueAndUserIdOrderByCreatedDateDesc(1, PageRequest.of(0, 1));
 
         assertThat(expected.isEmpty()).isTrue();
 
@@ -196,7 +198,7 @@ class ArticleDaoTest {
         testDao.save(article);
 
         int topicId = topicDao.findAll().get(0).getId();
-        List<Article> expected = testDao.findAllByEnabledIsTrueAndTopicId(topicId);
+        List<Article> expected = testDao.findAllByEnabledIsTrueAndTopicIdOrderByCreatedDateDesc(topicId, PageRequest.of(0, 1));
 
         assertThat(expected.isEmpty()).isFalse();
 
@@ -226,7 +228,7 @@ class ArticleDaoTest {
         testDao.save(article);
 
         int topicId = topicDao.findAll().get(0).getId();
-        List<Article> expected = testDao.findAllByEnabledIsTrueAndTopicId(topicId);
+        List<Article> expected = testDao.findAllByEnabledIsTrueAndTopicIdOrderByCreatedDateDesc(topicId, PageRequest.of(0, 1));
 
         assertThat(expected.isEmpty()).isTrue();
 
@@ -235,7 +237,7 @@ class ArticleDaoTest {
     @Test
     void itShouldNot_FindAllByEnabledIsTrueAndTopicId_WhenArticleWithTopicIdDoesNotExists() {
 
-        List<Article> expected = testDao.findAllByEnabledIsTrueAndTopicId(1);
+        List<Article> expected = testDao.findAllByEnabledIsTrueAndTopicIdOrderByCreatedDateDesc(1, PageRequest.of(0, 1));
 
         assertThat(expected.isEmpty()).isTrue();
 

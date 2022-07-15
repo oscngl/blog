@@ -17,6 +17,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -127,9 +128,9 @@ class ArticleManagerTest {
     @Test
     void itShould_GetAll() {
 
-        testManager.getAll();
+        testManager.getAll(0, 1);
 
-        verify(articleDao).findAllByEnabledIsTrue();
+        verify(articleDao).findAllByEnabledIsTrueOrderByCreatedDateDesc(PageRequest.of(0, 1));
 
     }
 
@@ -138,9 +139,9 @@ class ArticleManagerTest {
 
         int userId = 1;
 
-        testManager.getAllByUserId(userId);
+        testManager.getAllByUserId(userId, 0, 1);
 
-        verify(articleDao).findAllByEnabledIsTrueAndUserId(userId);
+        verify(articleDao).findAllByEnabledIsTrueAndUserIdOrderByCreatedDateDesc(userId, PageRequest.of(0, 1));
 
     }
 
@@ -149,9 +150,9 @@ class ArticleManagerTest {
 
         int topicId = 1;
 
-        testManager.getAllByTopicId(topicId);
+        testManager.getAllByTopicId(topicId, 0, 1);
 
-        verify(articleDao).findAllByEnabledIsTrueAndTopicId(topicId);
+        verify(articleDao).findAllByEnabledIsTrueAndTopicIdOrderByCreatedDateDesc(topicId, PageRequest.of(0, 1));
 
     }
 
